@@ -1,0 +1,313 @@
+{
+  "$comment": [
+    "Semantic overlay for the Jamcore OpenAPI document (https://d2jam.com/api/v1/openapi).",
+    "",
+    "The published spec describes paths, verbs, parameters and auth requirements accurately,",
+    "but every request body is typed `{ \"type\": \"object\", \"additionalProperties\": true }`",
+    "and every response is the generic `SuccessResponse` envelope with an untyped `data`.",
+    "That is not enough to generate a usable client, so this file supplies the missing half.",
+    "",
+    "Field shapes were derived from the public Jamcore backend:",
+    "  - prisma/schema.prisma                     (models: Score, GamePageLeaderboard, GamePageAchievement)",
+    "  - src/features/scores/service.ts           (createScoreSchema)",
+    "  - src/features/achievements/service.ts     (achievementConnectionSchema)",
+    "  - src/auth/gameToken.ts                    (device code / device token / game token shapes)",
+    "  - src/features/games/detail.service.ts     (game detail projection)",
+    "  - src/features/uploads/upload-internal.ts  (image upload response)",
+    "and cross-checked against live responses from https://d2jam.com/api/v1.",
+    "",
+    "`operations` doubles as the scope filter: a path/verb in the spec with no entry here is",
+    "not generated. The generator prints everything it skipped so coverage stays visible.",
+    "",
+    "As Jamcore adds real schemas to its OpenAPI document, entries here can be deleted."
+  ],
+
+  "classPrefix": "D2Jam",
+
+  "models": {
+    "User": {
+      "doc": "A Down2Jam user account.",
+      "fields": [
+        { "json": "id", "type": "int" },
+        { "json": "slug", "type": "String" },
+        { "json": "name", "type": "String" },
+        { "json": "profilePicture", "type": "String", "doc": "Absolute URL to the avatar image." },
+        { "json": "bannerPicture", "type": "String" },
+        { "json": "short", "type": "String", "doc": "One line profile tagline." },
+        { "json": "bio", "type": "String", "doc": "Profile biography, may contain HTML." },
+        { "json": "pronouns", "type": "String" },
+        { "json": "links", "type": "Array[String]" },
+        { "json": "linkLabels", "type": "Array[String]" },
+        { "json": "twitch", "type": "String", "doc": "Twitch login name, if the user linked one." },
+        { "json": "emotePrefix", "type": "String" },
+        { "json": "mod", "type": "bool" },
+        { "json": "admin", "type": "bool" },
+        { "json": "createdAt", "type": "String", "doc": "ISO 8601 timestamp." },
+        { "json": "updatedAt", "type": "String", "doc": "ISO 8601 timestamp." }
+      ]
+    },
+
+    "Score": {
+      "doc": "A single leaderboard entry.",
+      "fields": [
+        { "json": "id", "type": "int" },
+        { "json": "data", "type": "int", "doc": "The stored raw value. For SCORE and GOLF boards this is the submitted value multiplied by 10 ^ decimal_places; for SPEEDRUN and ENDURANCE boards it is a duration in milliseconds. Use D2JamLeaderboards.score_to_display() rather than reading this directly." },
+        { "json": "evidence", "type": "String", "doc": "URL of the screenshot backing this score. May be empty." },
+        { "json": "userId", "type": "int" },
+        { "json": "leaderboardId", "type": "int" },
+        { "json": "user", "type": "User" },
+        { "json": "createdAt", "type": "String" },
+        { "json": "updatedAt", "type": "String" }
+      ]
+    },
+
+    "Leaderboard": {
+      "doc": "A leaderboard attached to a game page. Created by the developer on the Down2Jam website; games submit to it by id.",
+      "fields": [
+        { "json": "id", "type": "int" },
+        { "json": "name", "type": "String" },
+        { "json": "type", "type": "String", "doc": "One of SCORE, GOLF, SPEEDRUN or ENDURANCE. See the TYPE_* constants on D2JamLeaderboards." },
+        { "json": "decimalPlaces", "type": "int", "doc": "Decimal precision for SCORE and GOLF boards. Ignored for time based boards." },
+        { "json": "maxUsersShown", "type": "int", "doc": "How many rows the website shows per page." },
+        { "json": "onlyBest", "type": "bool", "doc": "When true only each user's best entry is ranked." },
+        { "json": "gamePageId", "type": "int" },
+        { "json": "scores", "type": "Array[Score]", "doc": "Every submitted score, unsorted. Use D2JamLeaderboards.rank() to order them." },
+        { "json": "createdAt", "type": "String" },
+        { "json": "updatedAt", "type": "String" }
+      ]
+    },
+
+    "Achievement": {
+      "doc": "An achievement defined on a game page. Created by the developer on the Down2Jam website; games unlock it by id.",
+      "fields": [
+        { "json": "id", "type": "int" },
+        { "json": "name", "type": "String" },
+        { "json": "description", "type": "String" },
+        { "json": "image", "type": "String", "doc": "Absolute URL to the achievement icon." },
+        { "json": "gamePageId", "type": "int" },
+        { "json": "users", "type": "Array[User]", "doc": "Everyone who has unlocked this achievement." },
+        { "json": "createdAt", "type": "String" },
+        { "json": "updatedAt", "type": "String" }
+      ]
+    },
+
+    "DownloadLink": {
+      "doc": "A platform download or play link on a game page.",
+      "fields": [
+        { "json": "id", "type": "int" },
+        { "json": "url", "type": "String" },
+        { "json": "platform", "type": "String" },
+        { "json": "gamePageId", "type": "int" }
+      ]
+    },
+
+    "GamePage": {
+      "doc": "One version of a game's page. A game has a JAM page and optionally a POST_JAM page.",
+      "fields": [
+        { "json": "id", "type": "int" },
+        { "json": "version", "type": "String", "doc": "JAM or POST_JAM." },
+        { "json": "name", "type": "String" },
+        { "json": "description", "type": "String" },
+        { "json": "short", "type": "String" },
+        { "json": "thumbnail", "type": "String" },
+        { "json": "banner", "type": "String" },
+        { "json": "screenshots", "type": "Array[String]" },
+        { "json": "trailerUrl", "type": "String" },
+        { "json": "emotePrefix", "type": "String" },
+        { "json": "gameId", "type": "int" },
+        { "json": "downloadLinks", "type": "Array[DownloadLink]" }
+      ]
+    },
+
+    "Jam": {
+      "doc": "A Down2Jam jam event.",
+      "fields": [
+        { "json": "id", "type": "int" },
+        { "json": "name", "type": "String" },
+        { "json": "slug", "type": "String" },
+        { "json": "startTime", "type": "String", "doc": "ISO 8601 timestamp for the start of the jamming phase." },
+        { "json": "jammingHours", "type": "int" },
+        { "json": "submissionHours", "type": "int" },
+        { "json": "ratingHours", "type": "int" },
+        { "json": "isActive", "type": "bool" },
+        { "json": "icon", "type": "String" },
+        { "json": "color", "type": "String" }
+      ]
+    },
+
+    "Game": {
+      "doc": "A game entry. GET /games/{gameSlug} is the only endpoint that returns leaderboards and achievements, so it is also the read path for both.",
+      "fields": [
+        { "json": "id", "type": "int" },
+        { "json": "slug", "type": "String" },
+        { "json": "name", "type": "String", "doc": "Only populated by the list endpoints, which flatten it from the jam page. GET /games/{gameSlug} leaves it empty; read jam_page.name there, or call D2JamService.page()." },
+        { "json": "description", "type": "String", "doc": "List endpoints only, like name." },
+        { "json": "short", "type": "String", "doc": "List endpoints only, like name." },
+        { "json": "thumbnail", "type": "String", "doc": "List endpoints only, like name." },
+        { "json": "category", "type": "String", "doc": "REGULAR, ODA or EXTERNAL." },
+        { "json": "published", "type": "bool" },
+        { "json": "publishedAt", "type": "String" },
+        { "json": "sourceUrl", "type": "String" },
+        { "json": "sourcePlatform", "type": "String" },
+        { "json": "teamId", "type": "int" },
+        { "json": "jamId", "type": "int" },
+        { "json": "jam", "type": "Jam" },
+        { "json": "pages", "type": "Array[GamePage]" },
+        { "json": "jamPage", "type": "GamePage", "doc": "The page as submitted to the jam. Only populated by GET /games/{gameSlug}, and the place its name, description and artwork actually live." },
+        { "json": "postJamPage", "type": "GamePage", "doc": "The post-jam page, when the team published one. Only populated by GET /games/{gameSlug}." },
+        { "json": "downloadLinks", "type": "Array[DownloadLink]" },
+        { "json": "leaderboards", "type": "Array[Leaderboard]", "doc": "Only populated by GET /games/{gameSlug}." },
+        { "json": "achievements", "type": "Array[Achievement]", "doc": "Only populated by GET /games/{gameSlug}." },
+        { "json": "createdAt", "type": "String" },
+        { "json": "updatedAt", "type": "String" }
+      ]
+    },
+
+    "DeviceCode": {
+      "doc": "The result of starting a device authorization request. Show user_code to the player and open verification_uri in their browser, then poll poll_device_link() with device_code until it resolves. Prefer D2JamAuth.start_device_link(), which drives the whole thing.",
+      "fields": [
+        { "json": "deviceCode", "type": "String", "doc": "Secret. Poll poll_device_link() with this until the player approves or denies the request." },
+        { "json": "userCode", "type": "String", "doc": "Short code to show the player, e.g. ABCD-1234. Already embedded in verification_uri." },
+        { "json": "verificationUri", "type": "String", "doc": "Absolute URL to open in the player's browser." },
+        { "json": "expiresIn", "type": "int", "doc": "Seconds until the request expires unapproved." },
+        { "json": "interval", "type": "int", "doc": "Minimum seconds to wait between polls." }
+      ]
+    },
+
+    "DeviceToken": {
+      "doc": "The result of one poll of a pending device authorization request. A denied or expired request comes back as a failed D2JamResult instead of a status here.",
+      "fields": [
+        { "json": "status", "type": "String", "doc": "authorization_pending, slow_down, or approved." },
+        { "json": "token", "type": "String", "doc": "The game's access token. Only present when status is approved; empty otherwise." },
+        { "json": "user", "type": "User", "doc": "The player who approved the request. Only present when status is approved; /self does not accept a game token, so this is the only way to learn who just linked their account." }
+      ]
+    }
+  },
+
+  "bodies": {
+    "DeviceCodeBody": {
+      "doc": "Payload for POST /device/code.",
+      "fields": [
+        { "json": "clientName", "type": "String", "required": true, "doc": "Human readable name for this device or install, shown to the player when they approve it on the website." },
+        { "json": "gameSlug", "type": "String", "required": true, "doc": "The game this token will be scoped to. The issued game token only ever works for this one game -- see D2JamService.game_slug." }
+      ]
+    },
+
+    "DeviceTokenBody": {
+      "doc": "Payload for POST /device/token.",
+      "fields": [
+        { "json": "deviceCode", "type": "String", "required": true }
+      ]
+    },
+
+    "CreateScoreBody": {
+      "doc": "Payload for POST /score.",
+      "fields": [
+        { "json": "leaderboardId", "type": "int", "required": true, "doc": "Id of the leaderboard on the game page." },
+        { "json": "score", "type": "Variant", "required": true, "doc": "A number. For SCORE and GOLF boards, the value as a player would read it; the server multiplies it by 10 ^ decimal_places. For SPEEDRUN and ENDURANCE boards, a duration in whole milliseconds. Send an int unless the board declares decimal places, because the column it lands in is an integer. D2JamLeaderboards.submit() picks the right form for you." },
+        { "json": "evidence", "type": "String", "doc": "URL of a screenshot backing the score. The website requires one on every submission, so treat it as effectively mandatory." },
+        { "json": "evidenceUrl", "type": "String", "doc": "Accepted as an alias for evidence by the server. Prefer evidence." }
+      ]
+    },
+
+    "DeleteScoreBody": {
+      "doc": "Payload for DELETE /score.",
+      "fields": [
+        { "json": "scoreId", "type": "int", "required": true }
+      ]
+    },
+
+    "AchievementBody": {
+      "doc": "Payload for POST and DELETE /achievement.",
+      "fields": [
+        { "json": "achievementId", "type": "int", "required": true, "doc": "Id of the achievement on the game page." }
+      ]
+    }
+  },
+
+  "operations": {
+    "post /device/code": {
+      "name": "start_device_link",
+      "doc": "Begin a device authorization request. Prefer D2JamAuth.start_device_link(), which drives the whole flow: showing the user_code, opening verification_uri, and polling poll_device_link() until the player approves or denies it on the website.",
+      "body": "DeviceCodeBody",
+      "returns": "DeviceCode"
+    },
+    "post /device/token": {
+      "name": "poll_device_link",
+      "doc": "Poll a pending device authorization request. Returns authorization_pending or slow_down while waiting, or the game's access token once approved. A denied or expired request comes back as a failed result rather than a status field.",
+      "body": "DeviceTokenBody",
+      "returns": "DeviceToken"
+    },
+    "delete /self/game-tokens/current": {
+      "name": "revoke_current_game_token",
+      "doc": "Revoke the game token used to authenticate this request. Prefer D2JamAuth.disconnect(), which also clears the stored session locally.",
+      "returns": "void"
+    },
+    "get /self": {
+      "name": "get_self",
+      "doc": "Return the profile of the logged in user.",
+      "returns": "User"
+    },
+    "get /self/current-game": {
+      "name": "get_own_current_games",
+      "doc": "Return the logged in user's own game entries for the active jam. Useful for resolving your own game slug at runtime instead of hardcoding it.",
+      "returns": "Array[Game]"
+    },
+    "get /games": {
+      "name": "list_games",
+      "doc": "List published games. Leaderboards and achievements are not included here; fetch a single game for those.",
+      "returns": "Array[Game]"
+    },
+    "get /games/{gameSlug}": {
+      "name": "get_game",
+      "doc": "Return one game with its leaderboards (including every score) and achievements (including who unlocked them). This is the read path for both features.",
+      "returns": "Game"
+    },
+    "get /games/random": {
+      "name": "get_random_game",
+      "doc": "Return a random published game.",
+      "returns": "Game"
+    },
+    "get /users": {
+      "name": "list_users",
+      "doc": "List users.",
+      "returns": "Array[User]"
+    },
+    "get /users/{userSlug}": {
+      "name": "get_user",
+      "doc": "Return a user's public profile.",
+      "returns": "User"
+    },
+    "post /score": {
+      "name": "create_score",
+      "doc": "Submit a score to a leaderboard as the logged in user.\n\nThe server responds with a message only, no score object. Prefer D2JamLeaderboards.submit(), which converts the value for the board type and can attach a screenshot as evidence.",
+      "body": "CreateScoreBody",
+      "returns": "void"
+    },
+    "delete /score": {
+      "name": "delete_score",
+      "doc": "Delete a score. Allowed for the score's owner, the game's team members and moderators.",
+      "body": "DeleteScoreBody",
+      "returns": "void"
+    },
+    "post /achievement": {
+      "name": "unlock_achievement",
+      "doc": "Unlock an achievement for the logged in user. Unlocking one that is already unlocked is harmless.",
+      "body": "AchievementBody",
+      "returns": "void"
+    },
+    "delete /achievement": {
+      "name": "lock_achievement",
+      "doc": "Revoke an achievement from the logged in user.",
+      "body": "AchievementBody",
+      "returns": "void"
+    },
+    "post /image": {
+      "name": "upload_image",
+      "doc": "Upload a PNG, JPEG, GIF or WebP image and return its path on the API.\n\nThe returned value is relative (for example /api/v1/image/<uuid>.png); D2JamAPI resolves it to an absolute URL for you. Requires login, and the image must be at most 8 MiB.",
+      "multipart": { "fileField": "upload" },
+      "resolveUrl": true,
+      "returns": "String"
+    }
+  }
+}

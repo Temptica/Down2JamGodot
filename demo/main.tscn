@@ -1,0 +1,304 @@
+[gd_scene format=3 uid="uid://c0nlq8n12njbl"]
+
+[ext_resource type="Script" uid="uid://cd5l3hff7luhb" path="res://main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://cnsgebknyjnra" path="res://addons/d2jam/d2jam_service.gd" id="2_d2jam"]
+
+[node name="Main" type="Control" unique_id=2046777751]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+
+[node name="D2Jam" type="Node" parent="." unique_id=951250396]
+script = ExtResource("2_d2jam")
+game_slug = "flow-test-game"
+api_host = "http://localhost:3005/api/v1"
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=14004314]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Root" type="VBoxContainer" parent="Margin" unique_id=917212533]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Margin/Root" unique_id=1283024916]
+layout_mode = 2
+text = "Down2Jam plugin demo"
+
+[node name="Subtitle" type="Label" parent="Margin/Root" unique_id=1627802533]
+modulate = Color(1, 1, 1, 0.55)
+layout_mode = 2
+text = "Browsing works signed out. Submitting a score or unlocking an achievement happens as the signed in player."
+
+[node name="Columns" type="HBoxContainer" parent="Margin/Root" unique_id=867098612]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Left" type="VBoxContainer" parent="Margin/Root/Columns" unique_id=2065665924]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.85
+theme_override_constants/separation = 10
+
+[node name="SessionPanel" type="PanelContainer" parent="Margin/Root/Columns/Left" unique_id=1680484301]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Margin/Root/Columns/Left/SessionPanel" unique_id=1010679473]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Box" type="VBoxContainer" parent="Margin/Root/Columns/Left/SessionPanel/Margin" unique_id=1879262325]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Heading" type="Label" parent="Margin/Root/Columns/Left/SessionPanel/Margin/Box" unique_id=1589899962]
+layout_mode = 2
+text = "1. Session"
+
+[node name="Hint" type="Label" parent="Margin/Root/Columns/Left/SessionPanel/Margin/Box" unique_id=334647682]
+modulate = Color(1, 1, 1, 0.5)
+layout_mode = 2
+text = "Link your d2jam.com account. Approve it in the browser tab that opens; no password ever touches this game."
+autowrap_mode = 2
+
+[node name="DeviceCodeLabel" type="Label" parent="Margin/Root/Columns/Left/SessionPanel/Margin/Box" unique_id=662365002]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.8)
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="Margin/Root/Columns/Left/SessionPanel/Margin/Box" unique_id=587286645]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="LinkButton" type="Button" parent="Margin/Root/Columns/Left/SessionPanel/Margin/Box/Buttons" unique_id=1362021517]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Link Account"
+
+[node name="DisconnectButton" type="Button" parent="Margin/Root/Columns/Left/SessionPanel/Margin/Box/Buttons" unique_id=1042932333]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Disconnect"
+
+[node name="Who" type="HBoxContainer" parent="Margin/Root/Columns/Left/SessionPanel/Margin/Box" unique_id=982082029]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Avatar" type="TextureRect" parent="Margin/Root/Columns/Left/SessionPanel/Margin/Box/Who" unique_id=995006136]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SessionStatus" type="Label" parent="Margin/Root/Columns/Left/SessionPanel/Margin/Box/Who" unique_id=1784160491]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "not signed in"
+autowrap_mode = 2
+
+[node name="GamePanel" type="PanelContainer" parent="Margin/Root/Columns/Left" unique_id=991371935]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Margin/Root/Columns/Left/GamePanel" unique_id=781292582]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Box" type="VBoxContainer" parent="Margin/Root/Columns/Left/GamePanel/Margin" unique_id=106068597]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Heading" type="Label" parent="Margin/Root/Columns/Left/GamePanel/Margin/Box" unique_id=1996210049]
+layout_mode = 2
+text = "2. Game"
+
+[node name="Hint" type="Label" parent="Margin/Root/Columns/Left/GamePanel/Margin/Box" unique_id=1529465555]
+modulate = Color(1, 1, 1, 0.5)
+layout_mode = 2
+text = "The slug from the game's URL. One request returns the game, its boards with every score, and its achievements."
+autowrap_mode = 2
+
+[node name="Row" type="HBoxContainer" parent="Margin/Root/Columns/Left/GamePanel/Margin/Box" unique_id=1514562723]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="GameSlug" type="LineEdit" parent="Margin/Root/Columns/Left/GamePanel/Margin/Box/Row" unique_id=299648452]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "game slug"
+
+[node name="LoadButton" type="Button" parent="Margin/Root/Columns/Left/GamePanel/Margin/Box/Row" unique_id=1729593919]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Load"
+
+[node name="GameInfo" type="Label" parent="Margin/Root/Columns/Left/GamePanel/Margin/Box" unique_id=2029954140]
+unique_name_in_owner = true
+layout_mode = 2
+text = "loading..."
+autowrap_mode = 2
+
+[node name="Right" type="VBoxContainer" parent="Margin/Root/Columns" unique_id=1750472837]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.35
+theme_override_constants/separation = 10
+
+[node name="LeaderboardPanel" type="PanelContainer" parent="Margin/Root/Columns/Right" unique_id=2012355273]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Margin" type="MarginContainer" parent="Margin/Root/Columns/Right/LeaderboardPanel" unique_id=278026318]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Box" type="VBoxContainer" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin" unique_id=560174479]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Heading" type="Label" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin/Box" unique_id=855774050]
+layout_mode = 2
+text = "3. Leaderboards"
+
+[node name="BoardPicker" type="OptionButton" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin/Box" unique_id=417073405]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BoardRules" type="Label" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin/Box" unique_id=897287053]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.5)
+layout_mode = 2
+text = "loading..."
+autowrap_mode = 2
+
+[node name="BoardTable" type="Tree" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin/Box" unique_id=1497343668]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 190)
+layout_mode = 2
+size_flags_vertical = 3
+hide_root = true
+
+[node name="SubmitRow" type="HBoxContainer" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin/Box" unique_id=450323772]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ScoreValue" type="SpinBox" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin/Box/SubmitRow" unique_id=1430579056]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 100000000.0
+value = 1234.0
+allow_greater = true
+
+[node name="ScoreUnit" type="Label" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin/Box/SubmitRow" unique_id=1387817062]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.5)
+layout_mode = 2
+text = "points"
+
+[node name="UseScreenshot" type="CheckBox" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin/Box/SubmitRow" unique_id=2121748342]
+unique_name_in_owner = true
+layout_mode = 2
+text = "with screenshot"
+
+[node name="Spacer" type="Control" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin/Box/SubmitRow" unique_id=1443738399]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SubmitHint" type="Label" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin/Box/SubmitRow" unique_id=1943968234]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.5)
+layout_mode = 2
+text = "sign in to submit"
+
+[node name="SubmitButton" type="Button" parent="Margin/Root/Columns/Right/LeaderboardPanel/Margin/Box/SubmitRow" unique_id=1992290457]
+unique_name_in_owner = true
+layout_mode = 2
+disabled = true
+text = "Submit score"
+
+[node name="AchievementPanel" type="PanelContainer" parent="Margin/Root/Columns/Right" unique_id=1821592921]
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Margin/Root/Columns/Right/AchievementPanel" unique_id=963464455]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Box" type="VBoxContainer" parent="Margin/Root/Columns/Right/AchievementPanel/Margin" unique_id=272468034]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Heading" type="Label" parent="Margin/Root/Columns/Right/AchievementPanel/Margin/Box" unique_id=30398549]
+layout_mode = 2
+text = "4. Achievements"
+
+[node name="Progress" type="HBoxContainer" parent="Margin/Root/Columns/Right/AchievementPanel/Margin/Box" unique_id=2119087322]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CompletionBar" type="ProgressBar" parent="Margin/Root/Columns/Right/AchievementPanel/Margin/Box/Progress" unique_id=2012699766]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+size_flags_vertical = 4
+show_percentage = false
+
+[node name="CompletionLabel" type="Label" parent="Margin/Root/Columns/Right/AchievementPanel/Margin/Box/Progress" unique_id=1454758842]
+unique_name_in_owner = true
+modulate = Color(1, 1, 1, 0.6)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "loading..."
+
+[node name="AchievementList" type="VBoxContainer" parent="Margin/Root/Columns/Right/AchievementPanel/Margin/Box" unique_id=958302493]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="LogPanel" type="PanelContainer" parent="Margin/Root" unique_id=1310280394]
+custom_minimum_size = Vector2(0, 132)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="Margin/Root/LogPanel" unique_id=1645338353]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="Log" type="RichTextLabel" parent="Margin/Root/LogPanel/Margin" unique_id=1910377152]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+scroll_following = true
