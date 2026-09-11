@@ -4,7 +4,7 @@ namespace Down2Plugin.Emit;
 /// Writes the emitted files and prunes generated files that are no longer produced, so a
 /// renamed or dropped endpoint does not leave a stale class behind for Godot to load.
 /// </summary>
-public sealed class OutputWriter(string directory, bool dryRun)
+public sealed class OutputWriter(string directory, bool dryRun, string staleFilePattern = "*.gd")
 {
     private readonly Dictionary<string, string> _files = [];
 
@@ -47,7 +47,7 @@ public sealed class OutputWriter(string directory, bool dryRun)
 
         if (Directory.Exists(directory))
         {
-            foreach (var path in Directory.EnumerateFiles(directory, "*.gd"))
+            foreach (var path in Directory.EnumerateFiles(directory, staleFilePattern))
             {
                 var fileName = Path.GetFileName(path);
                 if (_files.ContainsKey(fileName))
@@ -61,7 +61,7 @@ public sealed class OutputWriter(string directory, bool dryRun)
                 {
                     File.Delete(path);
 
-                    // Godot writes a sibling .uid file for every script; it must go too.
+                    // Godot writes a sibling .uid file for every .gd script; it must go too.
                     var uid = path + ".uid";
                     if (File.Exists(uid))
                     {

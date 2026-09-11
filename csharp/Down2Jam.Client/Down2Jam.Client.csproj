@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Down2Jam.Client</RootNamespace>
+
+        <!-- A plain class library, not a Godot.NET.Sdk project: it has no Godot dependency, so it
+             works from any .NET 10 Godot C# game (or a headless tool/test) that references it,
+             rather than only from inside the Godot editor's own build. -->
+        <PackageId>Down2Jam.Client</PackageId>
+        <Description>Typed Down2Jam client: device-flow account linking, leaderboards and achievements.</Description>
+    </PropertyGroup>
+
+</Project>

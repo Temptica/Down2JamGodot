@@ -66,11 +66,13 @@ public static class ShapeEmitter
             {
                 JsonName = parameter.JsonName,
                 GdName = parameter.GdName,
+                CsName = Naming.ToPascalCase(parameter.JsonName),
                 Type = new TypeReference
                 {
                     Raw = parameter.GdType,
                     IsArray = false,
                     ElementGdType = parameter.GdType,
+                    ElementCsType = parameter.CsType,
                     ElementIsShape = false,
                 },
                 Doc = parameter.Doc,

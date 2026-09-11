@@ -1,3 +1,5 @@
+using Down2Plugin.Emit;
+
 namespace Down2Plugin.Model;
 
 /// <summary>Everything the emitters need, with the spec and the overlay already reconciled.</summary>
@@ -44,12 +46,15 @@ public sealed class FieldDefinition
     /// <summary>The GDScript property name.</summary>
     public required string GdName { get; init; }
 
+    /// <summary>The C# property name (PascalCase).</summary>
+    public required string CsName { get; init; }
+
     public required TypeReference Type { get; init; }
     public string? Doc { get; init; }
     public required bool Required { get; init; }
 }
 
-/// <summary>A resolved overlay type, mapped onto GDScript.</summary>
+/// <summary>A resolved overlay type, mapped onto both GDScript and C#.</summary>
 public sealed class TypeReference
 {
     public required string Raw { get; init; }
@@ -58,10 +63,16 @@ public sealed class TypeReference
     /// <summary>For arrays this is the element type, otherwise the type itself.</summary>
     public required string ElementGdType { get; init; }
 
+    /// <summary>The C# equivalent of <see cref="ElementGdType"/> ("string", "double", a class name, ...).</summary>
+    public required string ElementCsType { get; init; }
+
     /// <summary>True when the element is a generated data class rather than a built-in.</summary>
     public required bool ElementIsShape { get; init; }
 
     public string GdType => IsArray ? $"Array[{ElementGdType}]" : ElementGdType;
+
+    /// <summary>C# has real generics, so an array is just <c>List&lt;T&gt;</c>.</summary>
+    public string CsType => IsArray ? $"List<{ElementCsType}>" : ElementCsType;
 
     /// <summary>
     /// The value a freshly constructed property holds. Typed arrays need their own instance,
@@ -78,8 +89,26 @@ public sealed class TypeReference
             _ => "null",
         };
 
+    /// <summary>The C# equivalent of <see cref="DefaultValue"/>.</summary>
+    public string CsDefaultValue => IsArray
+        ? "[]"
+        : ElementCsType switch
+        {
+            "int" => "0",
+            "double" => "0.0",
+            "bool" => "false",
+            "string" => "\"\"",
+            _ => "null",
+        };
+
     /// <summary>Object typed properties must be declared nullable-friendly, so they are untyped-but-hinted.</summary>
     public bool NeedsNullableDeclaration => !IsArray && ElementIsShape;
+
+    /// <summary>
+    /// Shapes and <c>Variant</c>/<c>object</c> fields need a '?' in C#'s nullable-reference mode;
+    /// arrays are never null (they default to an empty list) and value types default in place.
+    /// </summary>
+    public bool NeedsCsNullable => !IsArray && (ElementIsShape || ElementCsType == "object");
 }
 
 public sealed class OperationDefinition
@@ -109,6 +138,12 @@ public sealed class OperationDefinition
     public string? OptionsFileName { get; init; }
 
     public string GdHttpMethod => "HTTPClient.METHOD_" + HttpMethod.ToUpperInvariant();
+
+    /// <summary>"list_games" -> "System.Net.Http.HttpMethod.Get".</summary>
+    public string CsHttpMethod => "HttpMethod." + Naming.ToPascalCase(HttpMethod);
+
+    /// <summary>"list_games" -> "ListGamesAsync", following C#'s Task-suffix convention.</summary>
+    public string CsName => Naming.ToPascalCase(Name) + "Async";
 }
 
 public sealed class ParameterDefinition
@@ -116,6 +151,14 @@ public sealed class ParameterDefinition
     public required string JsonName { get; init; }
     public required string GdName { get; init; }
     public required string GdType { get; init; }
+
+    /// <summary>
+    /// The C# parameter name. JSON parameter names are already camelCase, so this is the JSON
+    /// name itself (escaped with '@' on the rare keyword collision) rather than a re-casing.
+    /// </summary>
+    public required string CsName { get; init; }
+
+    public required string CsType { get; init; }
     public string? Doc { get; init; }
 }
 

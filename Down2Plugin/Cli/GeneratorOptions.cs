@@ -16,6 +16,15 @@ public sealed class GeneratorOptions
     /// <summary>Directory the generated .gd files are written to. Existing generated files not re-emitted are removed.</summary>
     public string Output { get; init; } = Path.Combine("addons", "d2jam", "generated");
 
+    /// <summary>
+    /// Directory the generated C# files are written to, for the Down2Jam.Client class library.
+    /// Pass an empty string (--no-csharp) to skip the C# client entirely.
+    /// </summary>
+    public string CsharpOutput { get; init; } = Path.Combine("csharp", "Down2Jam.Client", "Generated");
+
+    /// <summary>Namespace the generated C# types are declared in.</summary>
+    public string CsharpNamespace { get; init; } = "Down2Jam.Client";
+
     /// <summary>When set, the downloaded spec is also written here so runs are reproducible offline.</summary>
     public string? CacheSpec { get; init; }
 
@@ -30,6 +39,8 @@ public sealed class GeneratorOptions
         var spec = DefaultSpecUrl;
         var overlay = Path.Combine("spec", "d2jam.overlay.json");
         var output = Path.Combine("addons", "d2jam", "generated");
+        var csharpOutput = Path.Combine("csharp", "Down2Jam.Client", "Generated");
+        var csharpNamespace = "Down2Jam.Client";
         string? cacheSpec = null;
         var dryRun = false;
         var showSkipped = false;
@@ -46,6 +57,15 @@ public sealed class GeneratorOptions
                     break;
                 case "--output" or "-o":
                     output = RequireValue(args, ref i);
+                    break;
+                case "--csharp-output":
+                    csharpOutput = RequireValue(args, ref i);
+                    break;
+                case "--csharp-namespace":
+                    csharpNamespace = RequireValue(args, ref i);
+                    break;
+                case "--no-csharp":
+                    csharpOutput = "";
                     break;
                 case "--cache-spec":
                     cacheSpec = RequireValue(args, ref i);
@@ -68,6 +88,8 @@ public sealed class GeneratorOptions
             Spec = spec,
             Overlay = overlay,
             Output = output,
+            CsharpOutput = csharpOutput,
+            CsharpNamespace = csharpNamespace,
             CacheSpec = cacheSpec,
             DryRun = dryRun,
             ShowSkipped = showSkipped,
@@ -86,25 +108,31 @@ public sealed class GeneratorOptions
 
     public static string HelpText =>
         """
-        Down2Jam GDScript generator
+        Down2Jam client generator
 
-        Reads the Jamcore OpenAPI document plus a semantic overlay and emits a typed
-        GDScript client into a Godot addon.
+        Reads the Jamcore OpenAPI document plus a semantic overlay and emits typed clients -
+        a GDScript addon and a C# class library - from the same spec and overlay in one run,
+        so the two never drift apart.
 
         Usage:
           dotnet run --project Down2Plugin -- [options]
 
         Options:
-          --spec <url|path>    OpenAPI document to read.
-                               Default: https://d2jam.com/api/v1/openapi
-          --overlay <path>     Semantic overlay describing bodies and response models.
-                               Default: spec/d2jam.overlay.json
-          -o, --output <dir>   Directory for the generated .gd files.
-                               Default: addons/d2jam/generated
-          --cache-spec <path>  Also save the downloaded spec here.
-          --dry-run            Report changes without writing anything.
-          --show-skipped       List spec operations the overlay does not cover.
-          -h, --help           Show this help.
+          --spec <url|path>          OpenAPI document to read.
+                                     Default: https://d2jam.com/api/v1/openapi
+          --overlay <path>           Semantic overlay describing bodies and response models.
+                                     Default: spec/d2jam.overlay.json
+          -o, --output <dir>         Directory for the generated .gd files.
+                                     Default: addons/d2jam/generated
+          --csharp-output <dir>      Directory for the generated .cs files.
+                                     Default: csharp/Down2Jam.Client/Generated
+          --csharp-namespace <name>  Namespace for the generated C# types.
+                                     Default: Down2Jam.Client
+          --no-csharp                Skip the C# client, emitting only GDScript.
+          --cache-spec <path>        Also save the downloaded spec here.
+          --dry-run                  Report changes without writing anything.
+          --show-skipped             List spec operations the overlay does not cover.
+          -h, --help                 Show this help.
         """;
 }
 

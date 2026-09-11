@@ -70,6 +70,7 @@ public static class ApiModelBuilder
                 {
                     JsonName = field.Json,
                     GdName = Naming.SafeIdentifier(Naming.ToSnakeCase(field.Json)),
+                    CsName = Naming.ToPascalCase(field.Json),
                     Type = ResolveType(field.Type, overlay, prefix),
                     Doc = field.Doc,
                     Required = field.Required,
@@ -143,6 +144,15 @@ public static class ApiModelBuilder
             "array" => "Array",
             _ => "String",
         },
+        CsName = Naming.SafeCsIdentifier(parameter.Name),
+        CsType = parameter.Type switch
+        {
+            "integer" => "int",
+            "number" => "double",
+            "boolean" => "bool",
+            "array" => "List<string>",
+            _ => "string",
+        },
         Doc = parameter.Description,
     };
 
@@ -188,11 +198,26 @@ public static class ApiModelBuilder
                     $"Overlay type '{raw}' is neither a primitive nor a declared model."),
             };
 
+        // Shape classes share one name across both targets; only the built-in primitives differ.
+        var csType = isShape
+            ? prefix + element
+            : element switch
+            {
+                "int" => "int",
+                "float" => "double",
+                "bool" => "bool",
+                "String" => "string",
+                "Variant" => "object",
+                _ => throw new InvalidDataException(
+                    $"Overlay type '{raw}' is neither a primitive nor a declared model."),
+            };
+
         return new TypeReference
         {
             Raw = raw,
             IsArray = isArray,
             ElementGdType = gdType,
+            ElementCsType = csType,
             ElementIsShape = isShape,
         };
     }

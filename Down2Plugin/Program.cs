@@ -1,5 +1,6 @@
 using Down2Plugin.Cli;
 using Down2Plugin.Emit;
+using Down2Plugin.Emit.CSharp;
 using Down2Plugin.Model;
 using Down2Plugin.OpenApi;
 using Down2Plugin.Overlay;
@@ -60,7 +61,34 @@ static async Task<int> RunAsync(GeneratorOptions options)
     writer.Add("d2jam_api.gd", ApiEmitter.Emit(model));
 
     var report = writer.Commit();
-    PrintReport(report, options);
+    PrintReport(report, options, "GDScript", options.Output);
+
+    if (options.CsharpOutput.Length > 0)
+    {
+        var csharpWriter = new OutputWriter(options.CsharpOutput, options.DryRun, "*.cs");
+
+        foreach (var shape in model.Shapes)
+        {
+            csharpWriter.Add(
+                Naming.ToCsFileName(shape.ClassName),
+                CsShapeEmitter.Emit(shape, options.CsharpNamespace));
+        }
+
+        foreach (var operation in model.OperationsWithOptions)
+        {
+            csharpWriter.Add(
+                Naming.ToCsFileName(operation.OptionsClassName!),
+                CsShapeEmitter.EmitOptions(operation, options.CsharpNamespace));
+        }
+
+        csharpWriter.Add(
+            Naming.ToCsFileName(model.ClassPrefix + "Api.g"),
+            CsApiEmitter.Emit(model, options.CsharpNamespace));
+
+        var csharpReport = csharpWriter.Commit();
+        Console.WriteLine();
+        PrintReport(csharpReport, options, "C#", options.CsharpOutput);
+    }
 
     if (options.ShowSkipped && model.Skipped.Count > 0)
     {
@@ -75,12 +103,11 @@ static async Task<int> RunAsync(GeneratorOptions options)
     return 0;
 }
 
-static void PrintReport(WriteReport report, GeneratorOptions options)
+static void PrintReport(WriteReport report, GeneratorOptions options, string label, string output)
 {
     var verb = options.DryRun ? "would be" : "were";
 
-    Console.WriteLine();
-    Console.WriteLine($"Output: {Path.GetFullPath(options.Output)}");
+    Console.WriteLine($"{label} output: {Path.GetFullPath(output)}");
 
     foreach (var file in report.Created)
     {

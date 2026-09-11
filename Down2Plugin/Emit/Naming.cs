@@ -67,12 +67,23 @@ public static class Naming
     /// <summary>Class name to file name: "D2JamGamePage" -> "d2jam_game_page.gd".</summary>
     public static string ToFileName(string className) => ToSnakeCase(className) + ".gd";
 
+    /// <summary>Class name to C# file name: "D2JamGamePage" -> "D2JamGamePage.cs".</summary>
+    public static string ToCsFileName(string className) => className + ".cs";
+
     /// <summary>
     /// GDScript reserves a handful of words that also appear as API field names
     /// (`class`, `func`, `signal`, `match`, ...). Suffix those so the emitted code parses.
     /// </summary>
     public static string SafeIdentifier(string name) =>
         Reserved.Contains(name) ? name + "_" : name;
+
+    /// <summary>
+    /// A JSON field/parameter name is usually already valid as a C# camelCase identifier, but a
+    /// handful collide with C# keywords ("class", "params", "in", ...). Escape those with '@'
+    /// rather than renaming them, so the identifier still reads the same as the JSON key.
+    /// </summary>
+    public static string SafeCsIdentifier(string name) =>
+        CsReserved.Contains(name) ? "@" + name : name;
 
     private static readonly HashSet<string> Reserved =
     [
@@ -81,5 +92,18 @@ public static class Naming
         "static", "const", "enum", "var", "breakpoint", "preload", "await", "yield", "assert",
         "void", "PI", "TAU", "INF", "NAN", "and", "or", "not", "true", "false", "null", "super",
         "trait", "namespace", "get", "set", "range",
+    ];
+
+    private static readonly HashSet<string> CsReserved =
+    [
+        "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked",
+        "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else",
+        "enum", "event", "explicit", "extern", "false", "finally", "fixed", "float", "for",
+        "foreach", "goto", "if", "implicit", "in", "int", "interface", "internal", "is", "lock",
+        "long", "namespace", "new", "null", "object", "operator", "out", "override", "params",
+        "private", "protected", "public", "readonly", "ref", "return", "sbyte", "sealed",
+        "short", "sizeof", "stackalloc", "static", "string", "struct", "switch", "this", "throw",
+        "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort", "using",
+        "virtual", "void", "volatile", "while",
     ];
 }
